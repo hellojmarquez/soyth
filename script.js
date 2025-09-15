@@ -464,4 +464,232 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 5000);
     }
+
+    // Scroll-triggered animations
+    const observerOptions = {
+        threshold: 0.2,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                observer.unobserve(entry.target); // Only animate once
+            }
+        });
+    }, observerOptions);
+
+    // Observe all scroll reveal elements
+    document.querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right, .scroll-reveal-scale').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Particle System
+    function createParticle(container) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Random starting position
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        
+        // Random animation duration and delay
+        particle.style.animationDuration = (Math.random() * 6 + 8) + 's';
+        particle.style.animationDelay = Math.random() * 4 + 's';
+        
+        container.appendChild(particle);
+        
+        // Remove particle after animation completes
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        }, (parseFloat(particle.style.animationDuration) + parseFloat(particle.style.animationDelay)) * 1000);
+    }
+
+    // Create particles for hero section
+    const heroParticles = document.getElementById('particles-hero');
+    if (heroParticles) {
+        setInterval(() => {
+            createParticle(heroParticles);
+        }, 2000);
+        
+        // Create initial particles
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => createParticle(heroParticles), i * 500);
+        }
+    }
+
+    // Advanced hover effects for cards
+    document.querySelectorAll('.glass-card, .feature-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+            this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            
+            // Add glow effect
+            const glowElement = this.querySelector('.sphere-mini, .cube-mini');
+            if (glowElement) {
+                glowElement.style.boxShadow = '0 0 20px hsl(270, 100%, 70%), 0 0 40px hsl(270, 100%, 70%)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            
+            // Remove glow effect
+            const glowElement = this.querySelector('.sphere-mini, .cube-mini');
+            if (glowElement) {
+                glowElement.style.boxShadow = '';
+            }
+        });
+    });
+
+    // Typing animation restart
+    function restartTypingAnimation() {
+        const typingElements = document.querySelectorAll('.typing-text');
+        typingElements.forEach(el => {
+            el.style.animation = 'none';
+            el.offsetHeight; // Trigger reflow
+            el.style.animation = 'typing 4s steps(40, end), blink 1s step-end infinite';
+        });
+    }
+
+    // Restart typing animation every 8 seconds
+    setInterval(restartTypingAnimation, 8000);
+
+    // Interactive 3D shapes that respond to mouse movement
+    const shapes3D = document.querySelectorAll('.sphere-3d, .cube-3d, .hexagon-3d, .pyramid-3d');
+    
+    document.addEventListener('mousemove', function(e) {
+        const mouseX = (e.clientX / window.innerWidth) * 100;
+        const mouseY = (e.clientY / window.innerHeight) * 100;
+        
+        shapes3D.forEach((shape, index) => {
+            const intensity = 0.1 + (index * 0.05); // Different intensity for each shape
+            const rotateX = (mouseY - 50) * intensity;
+            const rotateY = (mouseX - 50) * intensity;
+            
+            shape.style.transform = `perspective(1000px) rotateX(${15 + rotateX}deg) rotateY(${15 + rotateY}deg)`;
+        });
+    });
+
+    // Parallax scrolling effect for background elements
+    let ticking = false;
+    
+    function updateParallax() {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.dots-pattern-1, .dots-pattern-2, .dots-pattern-3');
+        
+        parallaxElements.forEach((el, index) => {
+            const speed = 0.2 + (index * 0.1);
+            const yPos = -(scrolled * speed);
+            el.style.transform = `translateY(${yPos}px)`;
+        });
+        
+        ticking = false;
+    }
+    
+    function requestParallaxTick() {
+        if (!ticking) {
+            requestAnimationFrame(updateParallax);
+            ticking = true;
+        }
+    }
+    
+    window.addEventListener('scroll', requestParallaxTick);
+
+    // Stagger animation for feature cards
+    const featureCards = document.querySelectorAll('#feature-cards .glass-card');
+    featureCards.forEach((card, index) => {
+        card.style.animationDelay = (index * 0.2) + 's';
+        card.classList.add('scroll-reveal-scale');
+    });
+
+    // Dynamic background color changes based on scroll position
+    function updateBackgroundOnScroll() {
+        const scrollPercentage = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+        const sections = document.querySelectorAll('section');
+        
+        sections.forEach((section, index) => {
+            const rect = section.getBoundingClientRect();
+            const isInView = rect.top < window.innerHeight && rect.bottom > 0;
+            
+            if (isInView) {
+                // Add subtle color variations based on section
+                const colors = [
+                    'from-primary/5 to-secondary/5',
+                    'from-secondary/5 to-accent/5',
+                    'from-accent/5 to-primary/5',
+                    'from-primary/8 to-background'
+                ];
+                
+                document.body.className = `font-sans antialiased bg-gradient-to-br ${colors[index % colors.length]} text-foreground`;
+            }
+        });
+    }
+    
+    window.addEventListener('scroll', updateBackgroundOnScroll);
+    
+    // Initialize background
+    updateBackgroundOnScroll();
+    
+    // Loading animation complete - fade in page content
+    setTimeout(() => {
+        document.body.classList.add('animate-fade-in');
+    }, 500);
+
+    // Enhanced button animations
+    document.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Create ripple effect
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // Add CSS for ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
 });
