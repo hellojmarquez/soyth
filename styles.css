@@ -1,5 +1,11 @@
 /* Additional custom styles for the Soyth landing page */
 
+/* Proper dark background with good contrast */
+body {
+    background-color: hsl(0, 0%, 12%) !important;
+    color: hsl(0, 0%, 95%) !important;
+}
+
 /* Smooth scroll behavior for the entire page */
 html {
     scroll-behavior: smooth;
@@ -11,7 +17,7 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background: hsl(0, 0%, 12%);
+    background: hsl(0, 0%, 20%);
 }
 
 ::-webkit-scrollbar-thumb {
