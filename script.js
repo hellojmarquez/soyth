@@ -221,45 +221,215 @@ document.addEventListener('DOMContentLoaded', function() {
         stepsGrid.appendChild(stepCard);
     });
 
+    // Enhanced form validation functions
+    function isValidName(name) {
+        // Check for valid name format: requires at least one letter, allows spaces, hyphens, apostrophes
+        // Minimum 2 characters, maximum 50 characters, no leading/trailing separators or consecutive separators
+        const nameRegex = /^(?=.{2,50}$)[A-Za-zÀ-ÿ\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF]+(?:[ .'-][A-Za-zÀ-ÿ\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF]+)*$/;
+        return nameRegex.test(name.trim());
+    }
+
+    function isValidEmail(email) {
+        // Enhanced email validation with domain checking
+        if (email.length > 254) return false; // RFC 5321 limit
+        
+        // Use browser's built-in validation first
+        const tempInput = document.createElement('input');
+        tempInput.type = 'email';
+        tempInput.value = email;
+        if (!tempInput.validity.valid) return false;
+        
+        // Additional checks for robust validation
+        const parts = email.split('@');
+        if (parts.length !== 2) return false;
+        
+        const [localPart, domain] = parts;
+        if (localPart.length > 64 || domain.length > 253) return false;
+        
+        // Check for consecutive dots and proper domain format
+        if (domain.includes('..') || domain.startsWith('.') || domain.endsWith('.')) return false;
+        
+        // Check domain labels
+        const domainParts = domain.split('.');
+        if (domainParts.length < 2) return false;
+        
+        for (const part of domainParts) {
+            if (part.length === 0 || part.length > 63) return false;
+            if (part.startsWith('-') || part.endsWith('-')) return false;
+        }
+        
+        // Check TLD (last part) has at least 2 letters
+        const tld = domainParts[domainParts.length - 1];
+        return /^[a-zA-Z]{2,}$/.test(tld);
+    }
+
+    function isValidSubject(subject) {
+        // Subject is optional, but if provided should be reasonable length
+        return subject.length <= 100;
+    }
+
+    function isValidMessage(message) {
+        // Message should be at least 10 characters and not too long
+        return message.length >= 10 && message.length <= 2000;
+    }
+
+    function validateField(fieldId, value, validationFn, errorMessage, showToast = true) {
+        const field = document.getElementById(fieldId);
+        const isValid = validationFn(value);
+        
+        // Remove existing error styling and messages
+        field.classList.remove('border-red-500', 'focus:ring-red-500');
+        field.removeAttribute('aria-invalid');
+        
+        // Remove any existing error message
+        const existingError = field.parentElement.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        if (!isValid) {
+            // Add error styling and accessibility attributes
+            field.classList.add('border-red-500', 'focus:ring-red-500');
+            field.setAttribute('aria-invalid', 'true');
+            
+            // Add inline error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message text-red-500 text-xs mt-1';
+            errorDiv.textContent = errorMessage;
+            field.parentElement.appendChild(errorDiv);
+            
+            // Only show toast notification if explicitly requested (e.g., on form submit)
+            if (showToast) {
+                showNotification(errorMessage, 'error');
+                field.focus();
+            }
+            return false;
+        } else {
+            field.setAttribute('aria-invalid', 'false');
+        }
+        return true;
+    }
+
     // Form validation and submission
     const contactForm = document.getElementById('contact-form');
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // Trim all input values
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
+        const subject = document.getElementById('subject').value.trim();
         const message = document.getElementById('message').value.trim();
         
-        // Basic validation
-        if (!name || !email || !message) {
-            showNotification('Please fill in all required fields.', 'error');
+        // Reset form styling
+        const fields = ['name', 'email', 'subject', 'message'];
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            field.classList.remove('border-red-500', 'focus:ring-red-500');
+        });
+
+        // Comprehensive validation
+        if (!name) {
+            validateField('name', name, () => false, 'Name is required.');
+            return;
+        }
+        
+        if (!isValidName(name)) {
+            validateField('name', name, isValidName, 'Please enter a valid name (2-50 characters; letters with spaces, hyphens, apostrophes, periods allowed).');
+            return;
+        }
+        
+        if (!email) {
+            validateField('email', email, () => false, 'Email address is required.');
             return;
         }
         
         if (!isValidEmail(email)) {
-            showNotification('Please enter a valid email address.', 'error');
+            validateField('email', email, isValidEmail, 'Please enter a valid email address (e.g., name@example.com).');
             return;
         }
         
-        // Simulate form submission
+        if (subject && !isValidSubject(subject)) {
+            validateField('subject', subject, isValidSubject, 'Subject should be no more than 100 characters.');
+            return;
+        }
+        
+        if (!message) {
+            validateField('message', message, () => false, 'Message is required.');
+            return;
+        }
+        
+        if (!isValidMessage(message)) {
+            validateField('message', message, isValidMessage, 'Message should be between 10 and 2000 characters.');
+            return;
+        }
+        
+        // All validation passed - submit the form
+        submitForm({ name, email, subject, message });
+    });
+
+    function submitForm(formData) {
         const submitButton = contactForm.querySelector('button[type="submit"]');
         const originalText = submitButton.innerHTML;
+        
+        // Update button state
         submitButton.innerHTML = 'Sending...';
         submitButton.disabled = true;
         
+        // Simulate form submission
         setTimeout(() => {
-            console.log('Form submitted:', { name, email, message });
+            console.log('Form submitted:', formData);
             showNotification('Thanks for reaching out! We\'ll get back to you within 24 hours.', 'success');
             contactForm.reset();
+            
+            // Reset any error styling
+            const fields = ['name', 'email', 'subject', 'message'];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                field.classList.remove('border-red-500', 'focus:ring-red-500');
+            });
+            
             submitButton.innerHTML = originalText;
             submitButton.disabled = false;
         }, 1500);
+    }
+
+    // Add subtle real-time validation feedback on blur (no toast notifications)
+    document.getElementById('name').addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value && !isValidName(value)) {
+            validateField('name', value, isValidName, 'Please enter a valid name (letters, spaces, hyphens, apostrophes allowed)', false);
+        } else if (value) {
+            validateField('name', value, () => true, '', false);
+        }
     });
 
-    function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
+    document.getElementById('email').addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value && !isValidEmail(value)) {
+            validateField('email', value, isValidEmail, 'Please enter a valid email address (e.g., name@example.com)', false);
+        } else if (value) {
+            validateField('email', value, () => true, '', false);
+        }
+    });
+
+    document.getElementById('subject').addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value && !isValidSubject(value)) {
+            validateField('subject', value, isValidSubject, 'Subject should be no more than 100 characters', false);
+        } else {
+            validateField('subject', value, () => true, '', false);
+        }
+    });
+
+    document.getElementById('message').addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value && !isValidMessage(value)) {
+            validateField('message', value, isValidMessage, 'Message should be between 10 and 2000 characters', false);
+        } else if (value) {
+            validateField('message', value, () => true, '', false);
+        }
+    });
 
     function showNotification(message, type) {
         // Create notification element
