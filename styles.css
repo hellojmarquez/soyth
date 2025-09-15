@@ -1,14 +1,78 @@
-/* Additional custom styles for the Soyth landing page */
+/*
+===============================================
+SOYTH LANDING PAGE - CUSTOM STYLES
+===============================================
 
-/* Proper dark background with good contrast */
-body {
-    background-color: hsl(0, 0%, 12%) !important;
-    color: hsl(0, 0%, 95%) !important;
+Design System:
+- Dark theme with neon accent colors
+- Glassmorphism and 3D effects
+- Smooth animations with accessibility support
+- Performance-optimized for mobile devices
+
+Table of Contents:
+1. CSS Variables & Design Tokens
+2. Base Styles & Reset
+3. Accessibility & Media Queries
+4. Glass & Card Components
+5. Animation System
+6. 3D Effects & Shapes
+7. Interactive Elements
+8. Utility Classes
+===============================================
+*/
+
+/* ===== 1. CSS VARIABLES & DESIGN TOKENS ===== */
+:root {
+  /* Colors - matching Tailwind config */
+  --color-primary: hsl(270, 100%, 70%);
+  --color-primary-foreground: hsl(0, 0%, 98%);
+  --color-secondary: hsl(190, 100%, 60%);
+  --color-accent: hsl(320, 100%, 60%);
+  --color-background: hsl(0, 0%, 12%);
+  --color-foreground: hsl(0, 0%, 98%);
+  --color-muted: hsl(0, 0%, 15%);
+  --color-muted-foreground: hsl(0, 0%, 65%);
+  --color-border: hsl(0, 0%, 20%);
+  
+  /* Spacing & Sizing */
+  --radius: 0.375rem;
+  --shadow-neon: 0 0 20px var(--color-primary);
+  --blur-glass: 15px;
+  
+  /* Animation Tokens */
+  --dur-fast: 0.2s;
+  --dur-normal: 0.3s;
+  --dur-slow: 0.6s;
+  --dur-slower: 0.8s;
+  --ease-out: ease-out;
+  --ease-in-out: ease-in-out;
+  
+  /* Performance Settings */
+  --particle-count: 20;
+  --animation-scale: 1;
 }
 
-/* Smooth scroll behavior for the entire page */
+/* Reduced motion and mobile performance */
+@media (max-width: 640px) {
+  :root {
+    --particle-count: 8;
+    --blur-glass: 8px;
+    --animation-scale: 0.7;
+  }
+}
+
+/* ===== 2. BASE STYLES & RESET ===== */
+
+/* Base HTML & Body */
 html {
     scroll-behavior: smooth;
+    color-scheme: dark;
+}
+
+/* Remove !important and use class-based theming */
+.theme-dark body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
 }
 
 /* Custom scrollbar for webkit browsers - Dark theme */
@@ -17,11 +81,11 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background: hsl(0, 0%, 20%);
+    background: var(--color-border);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: hsl(270, 100%, 70%);
+    background: var(--color-primary);
     border-radius: 4px;
 }
 
@@ -29,84 +93,196 @@ html {
     background: hsl(270, 100%, 60%);
 }
 
-/* Enhanced focus styles for accessibility - Dark theme */
-button:focus,
-input:focus,
-textarea:focus,
-a:focus {
-    outline: 2px solid hsl(270, 100%, 70%);
+/* ===== 3. ACCESSIBILITY & MEDIA QUERIES ===== */
+
+/* Better focus management - only visible for keyboard users */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+    box-shadow: 0 0 0 4px hsl(270, 100%, 70%, 0.2);
 }
 
-/* Custom animations for better UX */
-@keyframes fadeInUp {
-    from {
+/* Remove focus outline for mouse users */
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+
+/* ===== 4. GLASS & CARD COMPONENTS ===== */
+
+/* Glass effect with fallback for older browsers */
+@supports (backdrop-filter: blur(15px)) {
+    .c-glass-effect {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(var(--blur-glass));
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+    
+    .c-glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all var(--dur-normal) var(--ease-out);
+    }
+    
+    .c-glass-navbar {
+        background: rgba(8, 8, 8, 0.8);
+        backdrop-filter: blur(25px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(15px)) {
+    .c-glass-effect,
+    .c-glass-card {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .c-glass-navbar {
+        background: rgba(8, 8, 8, 0.95);
+    }
+}
+
+.c-glass-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+/* ===== 5. ANIMATION SYSTEM ===== */
+
+/* Base animation classes - only enabled when motion is preferred */
+@media (prefers-reduced-motion: no-preference) {
+    /* Parametric slide animation */
+    .a-slide {
+        --dx: 0px;
+        --dy: 30px;
+        --dur: var(--dur-slower);
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy));
+        animation: slide var(--dur) var(--ease-out) forwards;
+    }
+    
+    .a-slide--left { --dx: -50px; --dy: 0px; }
+    .a-slide--right { --dx: 50px; --dy: 0px; }
+    .a-slide--bottom { --dy: 50px; }
+    
+    @keyframes slide {
+        to {
+            opacity: 1;
+            transform: translate(0, 0);
+        }
+    }
+    
+    /* Scale animation */
+    .a-scale-in {
+        opacity: 0;
+        transform: scale(0.8);
+        animation: scaleIn var(--dur-slow) var(--ease-out) forwards;
+    }
+    
+    @keyframes scaleIn {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    /* Legacy fade up for compatibility */
+    .animate-fade-in-up,
+    .a-fade-up {
         opacity: 0;
         transform: translateY(30px);
+        animation: fadeUp var(--dur-slow) var(--ease-out) forwards;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 }
 
-.animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
+/* ===== 8. UTILITY CLASSES ===== */
+
+/* Gradient utility */
+.u-gradient-bg {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-accent) 100%);
 }
 
-/* Enhance hover effects */
-.hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Basic hover lift */
+.u-hover-lift {
+    transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 
-.hover-lift:hover {
+.u-hover-lift:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* Better gradient backgrounds - Dark theme with neon effects */
-.gradient-bg {
-    background: linear-gradient(135deg, hsl(270, 100%, 70%) 0%, hsl(190, 100%, 60%) 50%, hsl(320, 100%, 60%) 100%);
+/* Legacy animation classes for backwards compatibility */
+@media (prefers-reduced-motion: no-preference) {
+    .animate-slide-left { animation: slideLeft var(--dur-slower) var(--ease-out) forwards; }
+    .animate-slide-right { animation: slideRight var(--dur-slower) var(--ease-out) forwards; }
+    .animate-slide-bottom { animation: slideBottom var(--dur-slower) var(--ease-out) forwards; }
+    .animate-scale-in { animation: scaleIn var(--dur-slow) var(--ease-out) forwards; }
+    .animate-rotate-in { animation: rotateIn var(--dur-slower) var(--ease-out) forwards; }
+    
+    @keyframes slideLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes slideRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes slideBottom {
+        from { opacity: 0; transform: translateY(50px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes rotateIn {
+        from { opacity: 0; transform: rotate(-10deg) scale(0.9); }
+        to { opacity: 1; transform: rotate(0deg) scale(1); }
+    }
 }
 
-/* Animation Classes */
-.animate-slide-left {
-    animation: slideInFromLeft 0.8s ease-out forwards;
+/* Performance-gated complex animations */
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    .animate-glow-pulse,
+    .a-glow-pulse {
+        animation: glow-pulse 3s ease-in-out infinite;
+    }
+    
+    .animate-rotate3d,
+    .a-rotate3d {
+        animation: rotate3D 10s ease-in-out infinite;
+    }
+    
+    .animate-morph,
+    .a-morph {
+        animation: morph 8s ease-in-out infinite;
+    }
+    
+    .animate-particle,
+    .a-particle {
+        animation: particle-float 6s ease-in-out infinite;
+    }
 }
 
-.animate-slide-right {
-    animation: slideInFromRight 0.8s ease-out forwards;
-}
-
-.animate-slide-bottom {
-    animation: slideInFromBottom 0.8s ease-out forwards;
-}
-
-.animate-scale-in {
-    animation: scaleIn 0.6s ease-out forwards;
-}
-
-.animate-rotate-in {
-    animation: rotateIn 0.8s ease-out forwards;
-}
-
-.animate-glow-pulse {
-    animation: glow-pulse 3s ease-in-out infinite;
-}
-
-.animate-rotate3d {
-    animation: rotate3D 10s ease-in-out infinite;
-}
-
-.animate-morph {
-    animation: morph 8s ease-in-out infinite;
-}
-
-.animate-particle {
-    animation: particle-float 6s ease-in-out infinite;
-}
-
-/* Stagger delays for sequential animations */
+/* Animation delays for staggered effects */
 .stagger-1 { animation-delay: 0.1s; }
 .stagger-2 { animation-delay: 0.2s; }
 .stagger-3 { animation-delay: 0.3s; }
@@ -114,162 +290,175 @@ a:focus {
 .stagger-5 { animation-delay: 0.5s; }
 .stagger-6 { animation-delay: 0.6s; }
 
-/* Scroll reveal classes */
-.scroll-reveal {
+/* Improved scroll reveal system - better performance than JS-based solutions */
+.scroll-reveal,
+.a-reveal {
+    --reveal-dur: var(--dur-slower);
     opacity: 0;
     transform: translateY(30px);
-    transition: all 0.8s ease-out;
+    transition: 
+        opacity var(--reveal-dur) var(--ease-out),
+        transform var(--reveal-dur) var(--ease-out);
 }
 
-.scroll-reveal.revealed {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.scroll-reveal-left {
-    opacity: 0;
+.scroll-reveal-left,
+.a-reveal--left {
     transform: translateX(-50px);
-    transition: all 0.8s ease-out;
 }
 
-.scroll-reveal-left.revealed {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.scroll-reveal-right {
-    opacity: 0;
+.scroll-reveal-right,
+.a-reveal--right {
     transform: translateX(50px);
-    transition: all 0.8s ease-out;
 }
 
-.scroll-reveal-right.revealed {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.scroll-reveal-scale {
-    opacity: 0;
+.scroll-reveal-scale,
+.a-reveal--scale {
     transform: scale(0.8);
-    transition: all 0.8s ease-out;
 }
 
-.scroll-reveal-scale.revealed {
+.scroll-reveal.revealed,
+.a-reveal.is-revealed {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) translateX(0) scale(1);
 }
 
-/* Typing animation class */
-.typing-text {
+/* Typing animation - keep minimal for performance */
+.typing-text,
+.a-typing {
     overflow: hidden;
-    border-right: 2px solid hsl(270, 100%, 70%);
+    border-right: 2px solid var(--color-primary);
     white-space: nowrap;
     animation: typing 4s steps(40, end), blink 1s step-end infinite;
 }
 
-/* Interactive hover animations */
-.hover-lift-rotate {
-    transition: all 0.3s ease;
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
 }
 
-.hover-lift-rotate:hover {
+@keyframes blink {
+    0%, 50% { border-color: transparent; }
+    51%, 100% { border-color: var(--color-primary); }
+}
+
+/* ===== 7. INTERACTIVE ELEMENTS ===== */
+
+/* Optimized hover effects */
+.hover-lift-rotate,
+.u-hover-lift-rotate {
+    transition: all var(--dur-normal) var(--ease-out);
+}
+
+.hover-lift-rotate:hover,
+.u-hover-lift-rotate:hover {
     transform: translateY(-10px) rotate(3deg) scale(1.05);
     box-shadow: 0 15px 40px rgba(139, 92, 246, 0.3);
 }
 
-.hover-glow {
-    transition: all 0.3s ease;
+/* Optimized glow effect - limited layers */
+.hover-glow,
+.u-hover-glow {
+    transition: all var(--dur-normal) var(--ease-out);
 }
 
-.hover-glow:hover {
+.hover-glow:hover,
+.u-hover-glow:hover {
     box-shadow: 
-        0 0 30px hsl(270, 100%, 70%),
-        0 0 60px hsl(270, 100%, 70%),
+        0 0 30px var(--color-primary),
         0 8px 25px rgba(139, 92, 246, 0.4);
     transform: translateY(-3px);
 }
 
-/* Particle system */
-.particles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
+/* Neon glow utility */
+.neon-glow,
+.u-neon-glow {
+    box-shadow: var(--shadow-neon);
 }
 
-.particle {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: radial-gradient(circle, hsl(270, 100%, 70%) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: particle-float 8s linear infinite;
+/* Particle system - performance optimized */
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    .particles,
+    .c-particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    .particle,
+    .c-particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: particle-float 8s linear infinite;
+        will-change: transform;
+    }
+    
+    .particle:nth-child(2n),
+    .c-particle:nth-child(2n) {
+        background: radial-gradient(circle, var(--color-secondary) 0%, transparent 70%);
+        animation-duration: 12s;
+        animation-delay: -2s;
+    }
+    
+    .particle:nth-child(3n),
+    .c-particle:nth-child(3n) {
+        background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
+        animation-duration: 10s;
+        animation-delay: -4s;
+    }
 }
 
-.particle:nth-child(2n) {
-    background: radial-gradient(circle, hsl(190, 100%, 60%) 0%, transparent 70%);
-    animation-duration: 12s;
-    animation-delay: -2s;
+/* Button component system */
+.c-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all var(--dur-normal) var(--ease-out);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-.particle:nth-child(3n) {
-    background: radial-gradient(circle, hsl(320, 100%, 60%) 0%, transparent 70%);
-    animation-duration: 10s;
-    animation-delay: -4s;
+.c-button--primary,
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    color: var(--color-primary-foreground);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
-/* Additional dark theme enhancements */
-.glass-effect {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-}
-
-.glass-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 
-        0 8px 32px rgba(31, 38, 135, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.glass-card:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 
-        0 12px 40px rgba(31, 38, 135, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+.c-button--primary:hover,
+.btn-primary:hover {
     transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Advanced Glassmorphism */
-.glass-navbar {
-    background: rgba(8, 8, 8, 0.8);
-    backdrop-filter: blur(25px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-}
-
+.c-button--glass,
 .glass-button {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    transition: all 0.3s ease;
+    color: var(--color-foreground);
+    transition: all var(--dur-normal) var(--ease-out);
 }
 
+.c-button--glass:hover,
 .glass-button:hover {
     background: rgba(255, 255, 255, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.18);
     box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25);
 }
 
-.neon-glow {
-    box-shadow: 0 0 20px hsl(270, 100%, 70%), 0 0 40px hsl(270, 100%, 70%), 0 0 60px hsl(270, 100%, 70%);
-}
+/* Legacy glass classes for backwards compatibility */
+.glass-effect { @apply c-glass-effect; }
+.glass-card { @apply c-glass-card; }
+.glass-navbar { @apply c-glass-navbar; }
 
 /* Dotted Decorations */
 .dots-pattern-1 {
@@ -557,39 +746,22 @@ a:focus {
     transform: perspective(500px) rotateX(15deg) rotateY(15deg);
 }
 
-/* Custom button styles for better consistency - Dark theme */
-.btn-primary {
-    background: linear-gradient(135deg, hsl(270, 100%, 70%), hsl(320, 100%, 60%));
-    color: hsl(0, 0%, 98%);
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.375rem;
-    border: none;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
-}
-
+/* Legacy button styles - now using optimized c-button system */
 .btn-secondary {
     background: rgba(255, 255, 255, 0.05);
-    color: hsl(270, 100%, 70%);
+    color: var(--color-primary);
     padding: 0.75rem 1.5rem;
-    border-radius: 0.375rem;
-    border: 1px solid hsl(270, 100%, 70%);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-primary);
     cursor: pointer;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: all var(--dur-normal) var(--ease-out);
     backdrop-filter: blur(10px);
 }
 
 .btn-secondary:hover {
-    background: hsl(270, 100%, 70%);
-    color: hsl(0, 0%, 98%);
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
     box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
@@ -599,23 +771,25 @@ img {
     height: auto;
 }
 
-/* Enhanced mobile menu styling */
-#mobile-menu {
-    transition: all 0.3s ease;
+/* Form enhancements */
+.c-input,
+.c-textarea,
+input,
+textarea {
+    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 
-/* Better form styling */
-input, textarea {
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+.c-input:focus,
+.c-textarea:focus,
+input:focus,
+textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px hsla(270, 100%, 70%, 0.2);
 }
 
-input:focus, textarea:focus {
-    border-color: hsl(270, 100%, 70%);
-    box-shadow: 0 0 0 3px hsl(270, 100%, 70%, 0.2);
-}
-
-/* Loading spinner for form submission */
-.spinner {
+/* Loading spinner - always animate even with reduced motion */
+.spinner,
+.c-spinner {
     width: 20px;
     height: 20px;
     border: 2px solid transparent;
@@ -624,6 +798,13 @@ input:focus, textarea:focus {
     animation: spin 1s linear infinite;
 }
 
+/* Mobile menu */
+#mobile-menu,
+.c-mobile-menu {
+    transition: all var(--dur-normal) var(--ease-out);
+}
+
+/* Essential animations that remain even with reduced motion */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -646,9 +827,11 @@ input:focus, textarea:focus {
     }
 }
 
-/* Reduced motion support */
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* Reduced motion - disable decorative animations but keep essential feedback */
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *:not(.spinner):not(.c-spinner):not(.spinner *):not(.c-spinner *) {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
@@ -656,6 +839,16 @@ input:focus, textarea:focus {
     
     html {
         scroll-behavior: auto;
+    }
+    
+    /* Keep essential UI feedback */
+    .c-button,
+    .c-input,
+    .c-textarea,
+    button,
+    input,
+    textarea {
+        transition-duration: var(--dur-fast) !important;
     }
 }
 
@@ -669,8 +862,42 @@ input:focus, textarea:focus {
         border-color: hsl(0, 0%, 30%);
     }
     
-    .glass-effect, .glass-card {
+    .glass-effect,
+    .glass-card,
+    .c-glass-effect,
+    .c-glass-card {
         background: rgba(255, 255, 255, 0.15);
         border: 1px solid rgba(255, 255, 255, 0.3);
     }
 }
+
+/*
+===============================================
+USAGE GUIDE - OPTIMIZED CSS SYSTEM
+===============================================
+
+Naming Conventions:
+- Components: .c-* (e.g., .c-button, .c-glass-card)
+- Animations: .a-* (e.g., .a-slide, .a-fade-up)
+- Utilities: .u-* (e.g., .u-hover-lift, .u-neon-glow)
+
+Performance Notes:
+- Complex animations only run on desktop with motion preference
+- Particle systems are limited on mobile devices
+- Glass effects have fallbacks for unsupported browsers
+- All animations respect prefers-reduced-motion
+
+Accessibility Features:
+- Focus-visible for keyboard navigation
+- High contrast mode support
+- Reduced motion preferences
+- Screen reader friendly markup
+
+Theme System:
+- All colors use CSS custom properties
+- Consistent timing and easing variables
+- Mobile-optimized performance settings
+- Dark theme with proper contrast ratios
+
+===============================================
+*/
