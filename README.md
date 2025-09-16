@@ -22,4 +22,4 @@ Clone the repository and open `index.html` in your browser:
 
 ```bash
 git clone https://github.com/yourusername/soyth-landing-page.git
-cd soyth-landing-page
+cd soyth
