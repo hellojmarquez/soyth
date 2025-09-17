@@ -194,14 +194,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<div class="hidden lg:block absolute top-12 left-full w-full h-0.5 bg-gradient-to-r from-primary/20 to-transparent z-0"></div>' 
                 : ''}
             
-            <div class="bg-card p-6 rounded-lg border hover:shadow-lg transition-all duration-300 relative z-10" data-testid="step-card-${index}">
+            <div class="bg-card p-6 rounded-lg border hover:shadow-lg transition-all duration-300 relative z-10 h-full flex flex-col" data-testid="step-card-${index}">
                 <div class="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4 mx-auto">
                     <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         ${step.icon}
                     </svg>
                 </div>
                 
-                <div class="text-center mb-4">
+                <div class="text-center mb-4 flex-grow">
                     <div class="text-sm text-primary font-semibold mb-2">Step ${index + 1}</div>
                     <h3 class="text-lg font-semibold text-card-foreground mb-2">${step.title}</h3>
                     <p class="text-muted-foreground text-sm leading-relaxed mb-3">${step.description}</p>
@@ -210,12 +210,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
 
-                <button class="w-full border border-border text-foreground hover:bg-muted px-4 py-2 rounded-md transition-colors flex items-center justify-center gap-2" data-testid="button-step-${index}" onclick="console.log('${step.action} clicked')">
-                    ${step.action}
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
-                </button>
+                <div class="mt-auto">
+                    <button class="w-full border border-border text-foreground hover:bg-muted px-4 py-2 rounded-md transition-colors flex items-center justify-center gap-2" data-testid="button-step-${index}" onclick="console.log('${step.action} clicked')">
+                        ${step.action}
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         `;
         stepsGrid.appendChild(stepCard);
