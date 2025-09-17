@@ -133,10 +133,10 @@ a:focus:not(:focus-visible) {
     }
     
     .c-glass-navbar {
-        background: rgba(8, 8, 8, 0.8);
+        background: rgba(8, 8, 8, 0.95);
         backdrop-filter: blur(25px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
     }
 }
 
@@ -148,7 +148,7 @@ a:focus:not(:focus-visible) {
     }
     
     .c-glass-navbar {
-        background: rgba(8, 8, 8, 0.95);
+        background: rgba(8, 8, 8, 0.98);
     }
 }
 
